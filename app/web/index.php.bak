@@ -1,0 +1,51 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Cral
+ * Date: 2016/12/24 0024
+ * Time: 上午 11:44
+ */
+if (version_compare(PHP_VERSION, '5.6.0', '<')) die('require PHP > 5.6.0 !');
+
+define('APP_ROOT', dirname(__DIR__));
+define('SITE_URL', 'http://' . $_SERVER['HTTP_HOST'] . substr($_SERVER['PHP_SELF'], 0, -10));
+
+date_default_timezone_set('Asia/Shanghai');
+
+
+require APP_ROOT . '/../vendor/autoload.php';
+
+
+
+$router = new AltoRouter();
+
+// map homepage
+$router->map( 'GET', '/', function() {
+    echo 'hello world!';
+});
+
+// map user details page
+$router->map( 'GET', '/user/[i:id]/', function( $id ) {
+    echo $id;
+});
+
+$router->map( 'GET', '/home/[a:action]','Home@show');
+
+// match current request url
+$match = $router->match();
+var_dump($match);
+// call closure or throw 404 status
+if( $match) {
+    if(is_callable( $match['target'] )){
+        call_user_func_array( $match['target'], $match['params'] );
+    }
+    if(false !== strpos($match['target'],'@')){
+        list($controllerName,$actionName)=explode('@',$match['target']);
+        $controllerClass='\app\controller\\'.$controllerName.'Controller';
+        $controller = new $controllerClass();
+        $controller->$actionName();
+    }
+} else {
+    // no route was matched
+    header( $_SERVER["SERVER_PROTOCOL"] . ' 404 Not Found');
+}

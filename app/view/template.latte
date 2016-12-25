@@ -1,0 +1,107 @@
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<!-- 可选的Bootstrap主题文件（一般不用引入） -->
+<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<style>
+.col-center-block {
+    float: none;
+    display: block;
+    margin: 0px auto;
+    margin-top: 50px;
+}
+ul li{
+    list-style: none;
+    text-decoration:line-through;
+    line-height:25px;
+}
+.updated{
+    text-decoration:none;
+}
+.del{
+    cursor: pointer;
+}
+.update{
+    cursor: pointer;
+}
+</style>
+<body>
+<div class="col-xs-6 col-md-4 col-center-block">
+    <ul>
+        <input id="add"></input><input type="button" value="新增" class="add"></input>
+    </ul>
+    <ul n:if="$items">
+        <li n:foreach="$items as $item" class="{$item['status']?updated}">{$item['title']|capitalize}
+        <span style="float:right;" class="update">完成</span>
+        <span style="float:right;" dataid="{$item['id']|capitalize}" class="del">删除|</span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>
+<script>
+    //添加
+    $(".add").click(function(){
+       var content = $(this).prev().val();
+       if(content==''){
+          alert('添加内容不能为空！');
+          return false;
+       }
+       $.ajax({
+           type : "POST",
+           url : "http://mymvcdemo.com/home/createdata",
+           data : {
+               "content" : content
+           },
+           success : function(result) {
+                if(result){
+                    alert('已完成！');
+                    window.location.reload();//刷新当前页面
+                }else{
+                    alert('操作失败！');
+                }
+           }
+       });
+    });
+    //删除
+    $(".del").click(function(){
+       var id = $(this).attr("dataid");
+       $.ajax({
+          type : "POST",
+          url : "http://mymvcdemo.com/home/del",
+          data : {
+              "id" : id
+          },
+          success : function(result) {
+               if(result){
+                   alert('删除成功！');
+                   window.location.reload();//刷新当前页面
+               }else{
+                   alert('删除失败！');
+               }
+          }
+       });
+    });
+    //修改
+    $(".update").click(function(){
+       var id = $(this).next().attr("dataid");
+       $.ajax({
+          type : "POST",
+          url : "http://mymvcdemo.com/home/updated",
+          data : {
+              "id" : id
+          },
+          success : function(result) {
+               if(result){
+                   alert('修改成功！');
+                   window.location.reload();//刷新当前页面
+               }else{
+                   alert('修改失败！');
+               }
+          }
+       });
+    });
+</script>
